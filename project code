@@ -1,0 +1,75 @@
+import tkinter as tk
+import tkinter.messagebox as messagebox
+
+class KnightsTourGUI:
+    def _init_(self, size=6):
+        self.size = size
+        self.solution = []
+        self.current_position = None
+
+        self.root = tk.Tk()
+        self.root.title("Knight's Tour")
+        self.canvas = tk.Canvas(self.root, width=100* size, height=100* size)
+        self.canvas.pack()
+
+        self.buttons = []
+        for i in range(size):
+            row = []
+            for j in range(size):
+                button = tk.Button(self.canvas, width=2, height=1, command=lambda x=i, y=j: self.move_knight(x, y))
+                button.grid(row=i, column=j)
+                row.append(button)
+            self.buttons.append(row)
+
+        self.restart_button = tk.Button(self.root, text='Restart', command=self.restart)
+        self.restart_button.pack()
+
+        self.root.mainloop()
+
+    def move_knight(self, x, y):
+        if self.current_position is None:
+            self.current_position = (x, y)
+            self.solution.append(self.current_position)
+            self.buttons[x][y].configure(text='1')
+        else:
+            if self.is_valid_move(x, y):
+                self.current_position = (x, y)
+                self.solution.append(self.current_position)
+                self.buttons[x][y].configure(text=str(len(self.solution)))
+            else:
+                self.display_invalid_move_message()
+
+        if len(self.solution) == self.size**2:
+            self.display_solution_found_message()
+            self.disable_all_buttons()
+
+    def is_valid_move(self, x, y):
+        current_x, current_y = self.current_position
+        dx = abs(x - current_x)
+        dy = abs(y - current_y)
+        if dx == 1 and dy == 2 or dx == 2 and dy == 1:
+            if (x, y) not in self.solution:
+                return True
+        return False
+
+    def display_invalid_move_message(self):
+        messagebox.showerror("Invalid Move", "That is not a valid move. Please try again.")
+
+    def display_solution_found_message(self):
+        messagebox.showinfo("Congratulations", "You have found a solution to the Knight's Tour problem!")
+
+    def disable_all_buttons(self):
+        for row in self.buttons:
+            for button in row:
+                button.configure(state=tk.DISABLED)
+
+    def restart(self):
+        self.solution = []
+        self.current_position = None
+        for i in range(self.size):
+            for j in range(self.size):
+                self.buttons[i][j].configure(text='')
+                self.buttons[i][j].configure(state=tk.NORMAL)
+
+if __name__ == '_main_':
+    KnightsTourGUI()
